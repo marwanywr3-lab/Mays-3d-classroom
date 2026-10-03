@@ -1,0 +1,647 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>اليوم الوطني السعودي 96 — مدرسة ١٥ الابتدائية</title>
+    <style>
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+
+        body, html {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;
+            background-color: #0b3d20;
+            color: #ffffff;
+        }
+
+        #canvas-container {
+            width: 100%;
+            height: 100%;
+            position: absolute;
+            top: 0;
+            left: 0;
+            z-index: 1;
+            display: none;
+        }
+
+        /* Landing Page Styles */
+        #landing-page {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(135deg, #0b3d20 0%, #062413 100%);
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .badge {
+            background-color: rgba(255, 255, 255, 0.1);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 20px;
+            border-radius: 50px;
+            font-size: 0.95rem;
+            margin-bottom: 20px;
+            letter-spacing: 0.5px;
+            backdrop-filter: blur(5px);
+        }
+
+        h1 {
+            font-size: 3rem;
+            font-weight: 800;
+            margin-bottom: 10px;
+            text-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        h2 {
+            font-size: 1.5rem;
+            font-weight: 400;
+            color: #d1e7dd;
+            margin-bottom: 15px;
+        }
+
+        .slogan {
+            font-size: 2rem;
+            font-weight: 700;
+            color: #d4af37;
+            margin-bottom: 30px;
+            text-shadow: 0 2px 8px rgba(212, 175, 55, 0.3);
+        }
+
+        .btn-start {
+            background: linear-gradient(135deg, #d4af37 0%, #aa8c2c 100%);
+            color: #0b3d20;
+            border: none;
+            padding: 16px 45px;
+            font-size: 1.25rem;
+            font-weight: 700;
+            border-radius: 50px;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            transition: all 0.3s ease;
+            margin-bottom: 40px;
+        }
+
+        .btn-start:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(212, 175, 55, 0.4);
+        }
+
+        .nav-helper {
+            font-size: 0.9rem;
+            color: #a3c9b8;
+            margin-bottom: 20px;
+            background: rgba(0,0,0,0.2);
+            padding: 8px 16px;
+            border-radius: 8px;
+        }
+
+        .credits {
+            font-size: 0.95rem;
+            color: #d1e7dd;
+            line-height: 1.6;
+            border-top: 1px solid rgba(255,255,255,0.1);
+            padding-top: 15px;
+            width: 300px;
+        }
+
+        /* HUD & UI inside 3D world */
+        #hud {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            display: none;
+        }
+
+        .hud-top {
+            position: absolute;
+            top: 20px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 0 30px;
+            pointer-events: auto;
+        }
+
+        .hud-badge {
+            background: rgba(11, 61, 32, 0.85);
+            border: 1px solid #d4af37;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-size: 1rem;
+            font-weight: bold;
+            backdrop-filter: blur(5px);
+        }
+
+        .btn-exit {
+            background: rgba(180, 40, 40, 0.85);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 12px;
+            font-weight: bold;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-exit:hover {
+            background: rgba(200, 40, 40, 1);
+        }
+
+        /* Bottom Navigation Bar */
+        .bottom-nav {
+            position: absolute;
+            bottom: 25px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(11, 61, 32, 0.9);
+            border: 1px solid rgba(212, 175, 55, 0.4);
+            padding: 12px 25px;
+            border-radius: 20px;
+            display: flex;
+            gap: 15px;
+            pointer-events: auto;
+            backdrop-filter: blur(8px);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+        }
+
+        .nav-btn {
+            background: rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            padding: 8px 16px;
+            border-radius: 10px;
+            cursor: pointer;
+            font-size: 0.9rem;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+
+        .nav-btn:hover {
+            background: #d4af37;
+            color: #0b3d20;
+            border-color: #d4af37;
+        }
+
+        /* Crosshair */
+        #crosshair {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 10px;
+            height: 10px;
+            transform: translate(-50%, -50%);
+            border: 2px solid rgba(255,255,255,0.6);
+            border-radius: 50%;
+            pointer-events: none;
+        }
+
+        /* Instructions overlay on click */
+        #pointer-lock-notice {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(0,0,0,0.7);
+            padding: 15px 30px;
+            border-radius: 10px;
+            font-size: 1.1rem;
+            text-align: center;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            border: 1px solid #d4af37;
+        }
+    </style>
+    <!-- Three.js CDN -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+</head>
+<body>
+
+    <!-- Landing Page -->
+    <div id="landing-page">
+        <div class="badge">مدرسة ١٥ الابتدائية — صف خامس</div>
+        <h1>اليوم الوطني السعودي 96</h1>
+        <h2>جولة افتراضية داخل فصلنا</h2>
+        <div class="slogan">عزنا بطبعنا</div>
+        <button class="btn-start" id="start-btn">ابدأ الجولة</button>
+        <div class="nav-helper">الأسهم أو W A S D للحركة | الفأرة للنظر حولك | أو اختر مكاناً من الشريط السفلي</div>
+        <div class="credits">
+            إعداد الطالبة : ميس<br>
+            بإشراف المعلمة : أروى البهلال
+        </div>
+    </div>
+
+    <!-- 3D Canvas Container -->
+    <div id="canvas-container"></div>
+
+    <!-- HUD Overlay -->
+    <div id="hud">
+        <div class="hud-top">
+            <div class="hud-badge">مدرسة ١٥ الابتدائية — صف خامس | عزنا بطبعنا</div>
+            <button class="btn-exit" id="exit-btn">إنهاء الجولة</button>
+        </div>
+        <div id="crosshair"></div>
+        <div id="pointer-lock-notice">انقر للبدء في الاستكشاف بالحركة الحرة</div>
+
+        <div class="bottom-nav">
+            <button class="nav-btn" onclick="teleportTo(0, 2, 4)">مدخل الفصل</button>
+            <button class="nav-btn" onclick="teleportTo(0, 2, -2)">طاولات الطالبات</button>
+            <button class="nav-btn" onclick="teleportTo(0, 2, -8)">السبورة والمنصة</button>
+            <button class="nav-btn" onclick="teleportTo(-6, 2, -4)">معرض الفنون الوطنية</button>
+            <button class="nav-btn" onclick="teleportTo(6, 2, -4)">ركن الاحتفال والبالونات</button>
+        </div>
+    </div>
+
+    <script>
+        // Application State
+        let scene, camera, renderer, clock;
+        let moveForward = false, moveBackward = false, moveLeft = false, moveRight = false;
+        let prevTime = performance.now();
+        const velocity = new THREE.Vector3();
+        const direction = new THREE.Vector3();
+        let isStarted = false;
+
+        // Pointer Lock variables
+        let controlsEnabled = false;
+        let euler = new THREE.Euler(0, 0, 0, 'YXZ');
+        const PI_2 = Math.PI / 2;
+
+        const landingPage = document.getElementById('landing-page');
+        const canvasContainer = document.getElementById('canvas-container');
+        const hud = document.getElementById('hud');
+        const startBtn = document.getElementById('start-btn');
+        const exitBtn = document.getElementById('exit-btn');
+        const pointerLockNotice = document.getElementById('pointer-lock-notice');
+
+        startBtn.addEventListener('click', () => {
+            landingPage.style.display = 'none';
+            canvasContainer.style.display = 'block';
+            hud.style.display = 'block';
+            isStarted = true;
+            init3D();
+            animate();
+            
+            // Request pointer lock on canvas click
+            setTimeout(() => {
+                document.body.requestPointerLock();
+            }, 100);
+        });
+
+        exitBtn.addEventListener('click', () => {
+            document.exitPointerLock();
+            landingPage.style.display = 'flex';
+            canvasContainer.style.display = 'none';
+            hud.style.display = 'none';
+            isStarted = false;
+        });
+
+        document.addEventListener('click', () => {
+            if (isStarted && document.pointerLockElement !== document.body) {
+                document.body.requestPointerLock();
+            }
+        });
+
+        document.addEventListener('pointerlockchange', () => {
+            if (document.pointerLockElement === document.body) {
+                controlsEnabled = true;
+                pointerLockNotice.style.opacity = '0';
+            } else {
+                controlsEnabled = false;
+                pointerLockNotice.style.opacity = '1';
+                pointerLockNotice.innerText = 'انقر في أي مكان للاستمرار في التحرك';
+            }
+        });
+
+        function init3D() {
+            // Scene Setup
+            scene = new THREE.Scene();
+            scene.background = new THREE.Color(0x0b3d20);
+            scene.fog = new THREE.FogExp2(0x0b3d20, 0.035);
+
+            // Camera Setup
+            camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+            camera.position.set(0, 2, 6);
+
+            // Renderer Setup
+            renderer = new THREE.WebGLRenderer({ antialias: true });
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            renderer.shadowMap.enabled = true;
+            renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+            canvasContainer.appendChild(renderer.domElement);
+
+            clock = new THREE.Clock();
+
+            // Lighting
+            const ambientLight = new THREE.AmbientLight(0xffffff, 0.7);
+            scene.add(ambientLight);
+
+            const dirLight = new THREE.DirectionalLight(0xfffaed, 0.8);
+            dirLight.position.set(5, 12, 5);
+            dirLight.castShadow = true;
+            dirLight.shadow.mapSize.width = 2048;
+            dirLight.shadow.mapSize.height = 2048;
+            scene.add(dirLight);
+
+            // Build Classroom Environment
+            buildClassroom();
+
+            // Event Listeners for Movement & Look
+            document.addEventListener('keydown', onKeyDown);
+            document.addEventListener('keyup', onKeyUp);
+            document.addEventListener('mousemove', onMouseMove);
+            window.addEventListener('resize', onWindowResize);
+        }
+
+        // Classroom Architecture Construction
+        function buildClassroom() {
+            const roomWidth = 16;
+            const roomLength = 20;
+            const roomHeight = 5;
+
+            // 1. Flooring
+            const floorGeo = new THREE.PlaneGeometry(roomWidth, roomLength);
+            const floorMat = new THREE.MeshStandardMaterial({ 
+                color: 0xf0f2f5, 
+                roughness: 0.2, 
+                metalness: 0.1 
+            });
+            const floor = new THREE.Mesh(floorGeo, floorMat);
+            floor.rotation.x = -Math.PI / 2;
+            floor.receiveShadow = true;
+            scene.add(floor);
+
+            // 2. Walls (Matte White with Green Borders)
+            const wallMat = new THREE.MeshStandardMaterial({ color: 0xf9f9f9, roughness: 0.9 });
+            const borderMat = new THREE.MeshStandardMaterial({ color: 0x0b3d20, roughness: 0.7 });
+
+            // Back Wall
+            const backWall = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomHeight), wallMat);
+            backWall.position.set(0, roomHeight / 2, -roomLength / 2);
+            scene.add(backWall);
+
+            // Front Wall
+            const frontWall = new THREE.Mesh(new THREE.PlaneGeometry(roomWidth, roomHeight), wallMat);
+            frontWall.position.set(0, roomHeight / 2, roomLength / 2);
+            frontWall.rotation.y = Math.PI;
+            scene.add(frontWall);
+
+            // Left Wall
+            const leftWall = new THREE.Mesh(new THREE.PlaneGeometry(roomLength, roomHeight), wallMat);
+            leftWall.position.set(-roomWidth / 2, roomHeight / 2, 0);
+            leftWall.rotation.y = Math.PI / 2;
+            scene.add(leftWall);
+
+            // Right Wall
+            const rightWall = new THREE.Mesh(new THREE.PlaneGeometry(roomLength, roomHeight), wallMat);
+            rightWall.position.set(roomWidth / 2, roomHeight / 2, 0);
+            rightWall.rotation.y = -Math.PI / 2;
+            scene.add(rightWall);
+
+            // Traditional Green Wainscoting / Decorative Borders along walls
+            const borderGeo = new THREE.BoxGeometry(roomWidth, 0.4, 0.1);
+            const borderBottom = new THREE.Mesh(borderGeo, borderMat);
+            borderBottom.position.set(0, 0.2, -roomLength / 2 + 0.05);
+            scene.add(borderBottom);
+
+            // 3. Classic Wooden Door (Rose/Pink finish with upper glass window)
+            const doorGroup = new THREE.Group();
+            const doorMat = new THREE.MeshStandardMaterial({ color: 0xd4838f, roughness: 0.6 });
+            const doorMesh = new THREE.Mesh(new THREE.BoxGeometry(1.8, 3.2, 0.1), doorMat);
+            doorMesh.position.set(0, 1.6, 0);
+            doorGroup.add(doorMesh);
+
+            // Door glass window
+            const glassMat = new THREE.MeshStandardMaterial({ color: 0xadd8e6, transparent: true, opacity: 0.6 });
+            const glassMesh = new THREE.Mesh(new THREE.BoxGeometry(1.0, 0.8, 0.12), glassMat);
+            glassMesh.position.set(0, 2.4, 0);
+            doorGroup.add(glassMesh);
+            doorGroup.position.set(-6, 0, roomLength / 2 - 0.05);
+            scene.add(doorGroup);
+
+            // 4. Blackboard & Display Boards at Front
+            const boardMat = new THREE.MeshStandardMaterial({ color: 0x142b1d, roughness: 0.8 });
+            const blackboard = new THREE.Mesh(new THREE.BoxGeometry(8, 2.5, 0.1), boardMat);
+            blackboard.position.set(0, 2.8, -roomLength / 2 + 0.1);
+            scene.add(blackboard);
+
+            // Blackboard Frame
+            const frameMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
+            const frame = new THREE.Mesh(new THREE.BoxGeometry(8.2, 2.7, 0.05), frameMat);
+            frame.position.set(0, 2.8, -roomLength / 2 + 0.06);
+            scene.add(frame);
+
+            // National Day Banner above board ("عزنا بطبعنا")
+            const bannerMat = new THREE.MeshStandardMaterial({ color: 0x0b3d20 });
+            const banner = new THREE.Mesh(new THREE.BoxGeometry(6, 0.8, 0.1), bannerMat);
+            banner.position.set(0, 4.4, -roomLength / 2 + 0.1);
+            scene.add(banner);
+
+            // 5. Student Desks & Chairs (Forest/Dark Green finish) in neat rows
+            const deskMat = new THREE.MeshStandardMaterial({ color: 0x1b4d3e, roughness: 0.5 });
+            const legMat = new THREE.MeshStandardMaterial({ color: 0x333333, metalness: 0.8 });
+
+            for (let row = 0; row < 4; row++) {
+                for (let col = 0; col < 3; col++) {
+                    const xPos = (col - 1) * 3.5;
+                    const zPos = -3 + (row * 3.2);
+                    createDesk(xPos, 0, zPos, deskMat, legMat);
+                }
+            }
+
+            // 6. Teacher's Desk & Platform
+            const teacherDesk = new THREE.Mesh(new THREE.BoxGeometry(3, 1, 1.5), deskMat);
+            teacherDesk.position.set(0, 0.5, -6.5);
+            teacherDesk.castShadow = true;
+            scene.add(teacherDesk);
+
+            // 7. National Day Decor & Exhibits (Balloons & Saudi Flags)
+            createDecorations(roomWidth, roomLength, roomHeight);
+        }
+
+        function createDesk(x, y, z, deskMat, legMat) {
+            const deskGroup = new THREE.Group();
+
+            // Table top
+            const top = new THREE.Mesh(new THREE.BoxGeometry(2.2, 0.1, 1.2), deskMat);
+            top.position.set(0, 0.9, 0);
+            top.castShadow = true;
+            deskGroup.add(top);
+
+            // Legs
+            const legGeo = new THREE.CylinderGeometry(0.04, 0.04, 0.9);
+            const leg1 = new THREE.Mesh(legGeo, legMat);
+            leg1.position.set(-0.9, 0.45, -0.4);
+            const leg2 = leg1.clone();
+            leg2.position.set(0.9, 0.45, -0.4);
+            const leg3 = leg1.clone();
+            leg3.position.set(-0.9, 0.45, 0.4);
+            const leg4 = leg1.clone();
+            leg4.position.set(0.9, 0.45, 0.4);
+
+            deskGroup.add(leg1, leg2, leg3, leg4);
+
+            // Chair
+            const chairSeat = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.08, 0.9), deskMat);
+            chairSeat.position.set(0, 0.5, 1.1);
+            deskGroup.add(chairSeat);
+
+            const chairBack = new THREE.Mesh(new THREE.BoxGeometry(0.9, 0.8, 0.08), deskMat);
+            chairBack.position.set(0, 0.9, 1.5);
+            deskGroup.add(chairBack);
+
+            deskGroup.position.set(x, y, z);
+            scene.add(deskGroup);
+        }
+
+        function createDecorations(width, length, height) {
+            // Display Bulletin Boards on Side Walls
+            const bulletinMat = new THREE.MeshStandardMaterial({ color: 0x8b5a2b });
+            const leftBoard = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2, 5), bulletinMat);
+            leftBoard.position.set(-width / 2 + 0.06, 2.5, 0);
+            scene.add(leftBoard);
+
+            const rightBoard = new THREE.Mesh(new THREE.BoxGeometry(0.1, 2, 5), bulletinMat);
+            rightBoard.position.set(width / 2 - 0.06, 2.5, 0);
+            scene.add(rightBoard);
+
+            // Celebratory Balloons (Green & White clusters)
+            const greenBalloonMat = new THREE.MeshStandardMaterial({ color: 0x0b3d20, roughness: 0.2 });
+            const goldBalloonMat = new THREE.MeshStandardMaterial({ color: 0xd4af37, roughness: 0.2 });
+            const whiteBalloonMat = new THREE.MeshStandardMaterial({ color: 0xffffff, roughness: 0.2 });
+
+            const balloonGeo = new THREE.SphereGeometry(0.4, 32, 32);
+
+            for (let i = 0; i < 8; i++) {
+                const mat = i % 2 === 0 ? greenBalloonMat : (i % 3 === 0 ? goldBalloonMat : whiteBalloonMat);
+                const balloon = new THREE.Mesh(balloonGeo, mat);
+                const angle = (i / 8) * Math.PI * 2;
+                const bx = Math.cos(angle) * 6.5;
+                const bz = Math.sin(angle) * 8;
+                balloon.position.set(bx, 3.8, bz);
+                scene.add(balloon);
+            }
+        }
+
+        // Teleportation Function from HUD
+        window.teleportTo = function(x, y, z) {
+            if (camera) {
+                camera.position.set(x, y, z);
+                euler.set(0, 0, 0);
+                camera.quaternion.setFromEuler(euler);
+            }
+        };
+
+        // Keyboard Controls
+        function onKeyDown(event) {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = true;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = true;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = true;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = true;
+                    break;
+            }
+        }
+
+        function onKeyUp(event) {
+            switch (event.code) {
+                case 'ArrowUp':
+                case 'KeyW':
+                    moveForward = false;
+                    break;
+                case 'ArrowLeft':
+                case 'KeyA':
+                    moveLeft = false;
+                    break;
+                case 'ArrowDown':
+                case 'KeyS':
+                    moveBackward = false;
+                    break;
+                case 'ArrowRight':
+                case 'KeyD':
+                    moveRight = false;
+                    break;
+            }
+        }
+
+        // Mouse Look
+        function onMouseMove(event) {
+            if (!controlsEnabled || !isStarted) return;
+
+            const movementX = event.movementX || event.mozMovementX || event.webkitMovementX || 0;
+            const movementY = event.movementY || event.mozMovementY || event.webkitMovementY || 0;
+
+            euler.y -= movementX * 0.002;
+            euler.x -= movementY * 0.002;
+
+            euler.x = Math.max(-PI_2, Math.min(PI_2, euler.x));
+            camera.quaternion.setFromEuler(euler);
+        }
+
+        function onWindowResize() {
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+            renderer.setSize(window.innerWidth, window.innerHeight);
+        }
+
+        // Animation Loop
+        function animate() {
+            if (!isStarted) return;
+            requestAnimationFrame(animate);
+
+            const time = performance.now();
+            const delta = (time - prevTime) / 1000;
+
+            if (controlsEnabled) {
+                velocity.x -= velocity.x * 10.0 * delta;
+                velocity.z -= velocity.z * 10.0 * delta;
+
+                direction.z = Number(moveForward) - Number(moveBackward);
+                direction.x = Number(moveRight) - Number(moveLeft);
+                direction.normalize();
+
+                if (moveForward || moveBackward) velocity.z -= direction.z * 15.0 * delta;
+                if (moveLeft || moveRight) velocity.x -= direction.x * 15.0 * delta;
+
+                camera.translateX(-velocity.x * delta);
+                camera.translateZ(velocity.z * delta);
+
+                // Boundary collision constraints inside classroom
+                camera.position.x = Math.max(-7, Math.min(7, camera.position.x));
+                camera.position.z = Math.max(-9, Math.min(9, camera.position.z));
+                camera.position.y = 2; // Fixed eye level height
+            }
+
+            prevTime = time;
+            renderer.render(scene, camera);
+        }
+    </script>
+</body>
+</html>
